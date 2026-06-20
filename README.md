@@ -1,25 +1,44 @@
-# MediaTek Flash Tools
+# Android SystemUI Stock Replacement
 
-Collection of MediaTek flashing tools for Linux.
+Replace Chinese head unit custom SystemUI with stock AOSP Android 8.1 SystemUI.
 
-## Contents
+## Goal
+Replace custom MediaTek SystemUI (MtkSystemUI.apk + OP01SystemUI.apk) and custom navbar (EasyRemind.apk) with stock AOSP Android 8.1 SystemUI on AC8227L head unit.
 
-- **mtkclient** - MTKClient v2.1.3 - CLI tool for MediaTek devices
-- **sp-flash-tool** - SP Flash Tool v6.2228 - GUI flashing tool
+## Device Info
+- Model: 9210B (alps manufacturer)
+- SoC: AC8227L / MT8168
+- Reported Android: 10.0
+- Actual API Level: 27 (Android 8.1 Oreo)
+- Build: 9210B_00028_V001
 
-## Usage
+## Original SystemUI Components
+- `/system/priv-app/MtkSystemUI/MtkSystemUI.apk` (11MB) - Status bar + notifications
+- `/system/app/OP01SystemUI/OP01SystemUI.apk` (54KB) - Overlay
+- `/system/app/EasyRemind/EasyRemind.apk` (10MB) - Custom navigation bar
 
-### MTKClient
-```bash
-mtk --help
-```
+## Stock AOSP SystemUI
+- Downloaded from: `arm64-v8a-27_r01.zip` (Android 8.1 AOSP)
+- Size: 6.3MB
+- Location: `/system/priv-app/SystemUI/SystemUI.apk`
+- Handles: Status bar + notifications + navigation bar (unified)
 
-### SP Flash Tool
-```bash
-cd sp-flash-tool/SP_Flash_Tool_v6.2228_Linux
-bash SPFlashToolV6.sh
-```
+## Challenge
+`/system` partition is read-only and cannot be remounted read-write via standard methods:
+- `mount -o remount,rw /system` fails with "read-only filesystem"
+- `blockdev --setrw` ineffective
+- Device lacks `adb root` capability
 
-## Platform
-- OS: Ubuntu 24.04 (Linux 6.14.0-37-generic)
-- Device tested: AC8227L Chinese head unit (MT8168)
+## Solution Approach
+Use SP Flash Tool to directly flash modified system partition bypassing Android mount restrictions.
+
+## Tools Included
+- **mtkclient** (v2.1.3) - CLI tool for MediaTek devices
+- **sp-flash-tool** (v6.2228) - GUI/CLI flashing tool
+- Helper scripts for readback and scatter generation
+
+## Backups
+Original Chinese head unit SystemUI files backed up to external storage.
+
+## Status
+In progress - awaiting SP Flash Tool implementation for system partition modification.
